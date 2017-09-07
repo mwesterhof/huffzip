@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+/* TODO: clearly define static functions and consider removing from H */
+
 typedef uint8_t byte;
 
 typedef struct {
@@ -13,6 +15,11 @@ typedef struct {
 typedef struct node {
     HuffByteSet byte_set;
     int count;
+    struct node *sibling_left;
+    struct node *sibling_right;
+    struct node *parent;
+    struct node *child_left;
+    struct node *child_right;
 } HuffNode;
 
 typedef struct {
@@ -22,7 +29,9 @@ typedef struct {
 
 void get_histogram(byte*, int*);
 HuffNodes get_nodes(byte*);
-HuffByteSet create_byteset(byte);
+HuffNode *create_node(byte, int);
 void destroy_nodes(HuffNodes*);
+void add_node(HuffNodes*, HuffNode*);
+void debug_nodes(HuffNodes);
 
 #endif
