@@ -9,6 +9,8 @@ int main(int argc, char *argv[]) {
     HuffNodes nodes;
     nodes = get_nodes(teststring);
     debug_nodes(nodes);
-    destroy_nodes(&nodes);
+    swap_nodes(&nodes, 0, 1);
+    debug_nodes(nodes);
+    /* destroy_nodes(&nodes); */
     return 0;
 }

@@ -29,9 +29,11 @@ typedef struct {
 
 void get_histogram(byte*, int*);
 HuffNodes get_nodes(byte*);
+HuffNode *get_node(HuffNodes*, int);
 HuffNode *create_node(byte, int);
 void destroy_nodes(HuffNodes*);
 void add_node(HuffNodes*, HuffNode*);
+void swap_nodes(HuffNodes*, int, int);
 void debug_nodes(HuffNodes);
 
 #endif

@@ -46,6 +46,51 @@ void add_node(HuffNodes *nodes, HuffNode *node) {
     nodes->len++;
 }
 
+void swap_nodes(HuffNodes *nodes, int i, int j) {
+    HuffNode *node_i, *node_j, *far_left, *far_right;
+    /* NOTE: this copies part of a struct, maybe this should be a sub-struct instead */
+    int swap;
+
+    if (i == j)
+        return;
+
+    /* normalize input */
+    if (i > j) {
+        swap = i;
+        i = j;
+        j = swap;
+    }
+    if (j - i > 1)
+        return;
+
+    node_i = get_node(nodes, i);
+    node_j = get_node(nodes, j);
+
+    far_left = node_i->sibling_left;
+    far_right = node_j->sibling_right;
+
+    node_i->sibling_left = node_j;
+    node_i->sibling_right = far_right;
+
+    node_j->sibling_left = far_left;
+    node_j->sibling_right = node_i;
+
+    if (far_left)
+        far_left->sibling_right = node_j;
+    if (far_right)
+        far_right->sibling_left = node_i;
+    if (i == 0)
+        nodes->nodes = node_j;
+}
+
+HuffNode *get_node(HuffNodes *nodes, int target) {
+    HuffNode *current = nodes->nodes;
+    for (int i=0; i<target; ++i) {
+        current = current->sibling_right;
+    }
+    return current;
+}
+
 HuffNodes get_nodes(byte *string) {
     int total = 0;
     int stats[256];
