@@ -34,6 +34,7 @@ HuffNodes get_nodes(byte *string) {
         if (stats[i] > 0){
             nodes.nodes[node_i].byte_set = create_byteset(i);
             nodes.nodes[node_i].count = 1;
+            ++node_i;
             ++(nodes.len);
         }
     }
@@ -51,5 +52,8 @@ HuffByteSet create_byteset(byte original) {
 }
 
 void destroy_nodes(HuffNodes *nodes) {
-
+    for (int i=0; i<nodes->len; ++i) {
+        free(nodes->nodes[i].byte_set.bytes);
+    }
+    free(nodes->nodes);
 }

@@ -9,6 +9,9 @@ all: huffzip
 debug: huffzip
 	cgdb huffzip
 
+valgrind: huffzip
+	valgrind ./huffzip
+
 huffzip: main.o huffzip.o
 	$(CC) -o huffzip main.o huffzip.o
 

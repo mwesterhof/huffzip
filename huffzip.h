@@ -10,7 +10,7 @@ typedef struct {
     int len;
 } HuffByteSet;
 
-typedef struct {
+typedef struct node {
     HuffByteSet byte_set;
     int count;
 } HuffNode;
