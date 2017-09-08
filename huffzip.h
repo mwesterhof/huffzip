@@ -6,6 +6,7 @@
 /* TODO: clearly define static functions and consider removing from H */
 
 typedef uint8_t byte;
+typedef enum {false, true} bool;
 
 typedef struct {
     byte *bytes;
@@ -30,10 +31,12 @@ typedef struct {
 void get_histogram(byte*, int*);
 HuffNodes get_nodes(byte*);
 HuffNode *get_node(HuffNodes*, int);
-HuffNode *create_node(byte, int);
+HuffNode *create_node(byte*, int);
 void destroy_nodes(HuffNodes*);
 void add_node(HuffNodes*, HuffNode*);
 void swap_nodes(HuffNodes*, int, int);
-void debug_nodes(HuffNodes);
+void sort_nodes_by_count(HuffNodes*);
+void merge_nodes(HuffNodes*, int, int);
+void debug_nodes(HuffNodes*);
 
 #endif
