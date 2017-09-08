@@ -211,6 +211,29 @@ HuffNodes get_nodes(byte *string) {
     return nodes;
 }
 
+
+void get_route_to_byte(HuffNode *node, byte target, char *buffer, char reference_bitvalue) {
+    bool found=false;
+    
+    for (int i=0; i<node->byte_set.len && !found; ++i) {
+        if (node->byte_set.bytes[i] == target) {
+            found = true;
+        }
+    }
+    if (!found) {
+        return;
+    }
+    *buffer = reference_bitvalue;
+
+    if (node->child_left) {
+        get_route_to_byte(node->child_left, target, buffer+sizeof(byte), '0');
+    }
+    if (node->child_left) {
+        get_route_to_byte(node->child_right, target, buffer+sizeof(byte), '1');
+    }
+}
+
+
 void destroy_nodes(HuffNodes *nodes) {
     /* TODO: change to fancy recursive solution */
     for (int i=0; i<nodes->len; ++i) {

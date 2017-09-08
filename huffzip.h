@@ -37,6 +37,7 @@ void add_node(HuffNodes*, HuffNode*);
 void swap_nodes(HuffNodes*, int, int);
 void sort_nodes_by_count(HuffNodes*);
 void merge_nodes(HuffNodes*, int, int);
+void get_route_to_byte(HuffNode*, byte, char*, char);
 void debug_nodes(HuffNodes*);
 
 #endif
