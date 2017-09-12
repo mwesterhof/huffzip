@@ -9,7 +9,7 @@ all: huffzip
 debug: huffzip
 	cgdb huffzip
 
-valgrind: huffzip
+grind: huffzip
 	valgrind ./huffzip
 
 huffzip: main.o huffzip.o

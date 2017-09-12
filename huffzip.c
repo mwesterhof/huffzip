@@ -9,7 +9,7 @@
 
 
 void get_histogram(byte *string, int *result) {
-    memset(result, 0, 256 * sizeof(int));
+    memset(result, 0, CHARSET * sizeof(int));
 
     /* tally each byte in string */
     for (int i=0, len=strlen(string); i<len; i++) {
@@ -18,10 +18,10 @@ void get_histogram(byte *string, int *result) {
 }
 
 HuffNode *create_node(byte *original, int count) {
-    HuffNode *new_node = (HuffNode*)malloc(sizeof(HuffNode));
-    memset(new_node, 0, sizeof(HuffNode));
+    HuffNode *new_node = (HuffNode*)calloc(1, sizeof(HuffNode));
+    int len = strlen(original);
 
-    new_node->byte_set.bytes = (byte*)malloc(sizeof(byte) + 1); /* TODO: check this gets freed */
+    new_node->byte_set.bytes = (byte*)calloc(len+1, sizeof(byte)); /* TODO: check this gets freed */
     strcpy(new_node->byte_set.bytes, original);
     new_node->byte_set.len = strlen(original);
     new_node->count = count;
@@ -137,8 +137,7 @@ void merge_nodes(HuffNodes *nodes, int i, int j) {
     far_right = node_j->sibling_right;
 
     len = (node_i->byte_set.len + node_j->byte_set.len) * sizeof(byte);
-    buffer = malloc(len);
-    memset(buffer, 0, len);
+    buffer = (byte*)calloc(len+1, sizeof(byte));
     memcpy(
         buffer,
         node_i->byte_set.bytes,
@@ -151,6 +150,8 @@ void merge_nodes(HuffNodes *nodes, int i, int j) {
     );
 
     parent = create_node(buffer, node_i->count + node_j->count);
+    free(buffer);
+
     /* set parent attributes */
     parent->sibling_left = node_i->sibling_left;
     parent->sibling_right = node_j->sibling_right;
@@ -181,7 +182,7 @@ void merge_nodes(HuffNodes *nodes, int i, int j) {
 
 HuffNodes get_nodes(byte *string) {
     int total = 0;
-    int stats[256];
+    int stats[CHARSET];
 
     HuffNodes nodes;
     HuffNode *new_node;
@@ -192,11 +193,10 @@ HuffNodes get_nodes(byte *string) {
 
     get_histogram(string, stats);
 
-    // nodes.nodes = (HuffNode*)malloc(sizeof(HuffNode) * total); /* TODO: check this gets freed */
+    // nodes.nodes = (HuffNode*)calloc(sizeof(HuffNode) * total); /* TODO: check this gets freed */
 
-    for (int i=0; i<256; ++i) {
+    for (int i=0; i<CHARSET; ++i) {
         if (stats[i] > 0){
-            printf("--creating node--, %c, %d\n", i, stats[i]);
             bytes[0] = (byte)i;
             new_node = create_node(bytes, stats[i]);
             add_node(&nodes, new_node);
@@ -234,17 +234,28 @@ void get_route_to_byte(HuffNode *node, byte target, char *buffer, char reference
 }
 
 
-void destroy_nodes(HuffNodes *nodes) {
-    /* TODO: change to fancy recursive solution */
-    for (int i=0; i<nodes->len; ++i) {
-        free(nodes->nodes[i].byte_set.bytes);
+void destroy_node(HuffNode *current) {
+    if (current) {
+        free(current->byte_set.bytes);
+        destroy_node(current->child_left);
+        destroy_node(current->child_right);
+        free(current);
     }
-    free(nodes->nodes);
+}
+
+
+void destroy_nodes(HuffNodes *nodes) {
+    HuffNode *current=nodes->nodes, *next=NULL;
+    while (current) {
+        next = current->sibling_right;
+        destroy_node(current);
+        current = next;
+    }
 }
 
 
 static void _debug_node(HuffNode *node, int level) {
-    char *indent = (char*)malloc((level*2+1) * sizeof(char));
+    char *indent = (char*)calloc((level*2+1), sizeof(char));
     for (int i=0; i<level; ++i)
         strcat(indent, "  ");
     printf("%sbytes: %s count: %d\n", indent, node->byte_set.bytes, node->count);
@@ -252,14 +263,48 @@ static void _debug_node(HuffNode *node, int level) {
         _debug_node(node->child_left, level+1);
         _debug_node(node->child_right, level+1);
     }
+    free(indent);
 }
 
 
 void debug_nodes(HuffNodes *nodes) {
     HuffNode *current = nodes->nodes;
-    printf("---NODES---\n");
     while (current) {
         _debug_node(current, 0);
         current = current->sibling_right;
+    }
+}
+
+
+void map_bytes(HuffNodes *nodes, byte_mapping *target) {
+    int len;
+    char current;
+
+    for (int i=0; i<CHARSET; ++i) {
+        memset(target[i].bits, 0, CHARSET);
+        get_route_to_byte(nodes->nodes, (byte)i, target[i].bits, ' ');
+        len = strlen(target[i].bits);
+        target[i].bits_compiled = (bool*)calloc(len, sizeof(bool));
+        target[i].length = len;
+        for (int j=0; j<len; ++j) {
+            current = target[i].bits[j];
+            switch (current) {
+                case '0':
+                    target[i].bits_compiled[j] = 0;
+                    break;
+                case '1':
+                    target[i].bits_compiled[j] = 1;
+                    break;
+                default:
+                    continue;
+            }
+        }
+    }
+}
+
+
+void destroy_map(byte_mapping *map) {
+    for (int i=0; i<CHARSET; ++i) {
+        free(map[i].bits_compiled);
     }
 }

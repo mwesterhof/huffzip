@@ -6,14 +6,19 @@
 
 
 int main(int argc, char *argv[]) {
-    char *teststring = "APPLEPIE";
+    char *teststring = "Moves Like Jagger (metal cover by Leo Moracchioli)";
     char *route = (char*)malloc(strlen(teststring));
-    /* char *teststring = "Moves Like Jagger (metal cover by Leo Moracchioli)"; */
+    byte_mapping mapping[CHARSET];
     HuffNodes nodes;
     nodes = get_nodes(teststring);
     debug_nodes(&nodes);
-    get_route_to_byte(nodes.nodes, 'A', route, ' ');
-    puts(route);
-    /* destroy_nodes(&nodes); */
+
+    map_bytes(&nodes, mapping);
+    printf("map for \"e\": %s\n", mapping['e'].bits);
+
+
+    destroy_nodes(&nodes);
+    destroy_map(mapping);
+    free(route);
     return 0;
 }

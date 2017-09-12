@@ -3,6 +3,8 @@
 
 #include <inttypes.h>
 
+#define CHARSET 256
+
 /* TODO: clearly define static functions and consider removing from H */
 
 typedef uint8_t byte;
@@ -28,16 +30,25 @@ typedef struct {
     int len;
 } HuffNodes;
 
+typedef struct {
+    char bits[CHARSET];
+    bool *bits_compiled;
+    int length;
+} byte_mapping;
+
 void get_histogram(byte*, int*);
 HuffNodes get_nodes(byte*);
 HuffNode *get_node(HuffNodes*, int);
 HuffNode *create_node(byte*, int);
+void destroy_node(HuffNode*);
 void destroy_nodes(HuffNodes*);
+void destroy_map(byte_mapping*);
 void add_node(HuffNodes*, HuffNode*);
 void swap_nodes(HuffNodes*, int, int);
 void sort_nodes_by_count(HuffNodes*);
 void merge_nodes(HuffNodes*, int, int);
 void get_route_to_byte(HuffNode*, byte, char*, char);
 void debug_nodes(HuffNodes*);
+void map_bytes(HuffNodes*, byte_mapping*);
 
 #endif
