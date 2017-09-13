@@ -1,2 +1,4 @@
 *.o
 huffzip
+
+result.bin

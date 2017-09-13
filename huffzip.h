@@ -50,5 +50,6 @@ void merge_nodes(HuffNodes*, int, int);
 void get_route_to_byte(HuffNode*, byte, char*, char);
 void debug_nodes(HuffNodes*);
 void map_bytes(HuffNodes*, byte_mapping*);
+void write_mapped_bits(char*, byte*, byte_mapping*);
 
 #endif

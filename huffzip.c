@@ -283,11 +283,11 @@ void map_bytes(HuffNodes *nodes, byte_mapping *target) {
     for (int i=0; i<CHARSET; ++i) {
         memset(target[i].bits, 0, CHARSET);
         get_route_to_byte(nodes->nodes, (byte)i, target[i].bits, ' ');
-        len = strlen(target[i].bits);
+        len = strlen(target[i].bits)-1;
         target[i].bits_compiled = (bool*)calloc(len, sizeof(bool));
         target[i].length = len;
         for (int j=0; j<len; ++j) {
-            current = target[i].bits[j];
+            current = target[i].bits[j+1];
             switch (current) {
                 case '0':
                     target[i].bits_compiled[j] = 0;
@@ -307,4 +307,40 @@ void destroy_map(byte_mapping *map) {
     for (int i=0; i<CHARSET; ++i) {
         free(map[i].bits_compiled);
     }
+}
+
+
+void write_mapped_bits(char *fname, byte *teststring, byte_mapping *mapping) {
+    byte_mapping *current_mapping;
+    byte current, buffer;
+    int mask;
+    FILE *f = fopen(fname, "wb");
+
+    mask = 128;
+    buffer = 0;
+
+    int len = strlen(teststring);
+    for (int i=0; i<len; ++i) {
+        current = teststring[i];
+        current_mapping = &(mapping[current]);
+        printf("length of mapping: %d\n", current_mapping->length);
+
+        for (int j=0; j<current_mapping->length; ++j) {
+            if (current_mapping->bits_compiled[j]) {
+                buffer |= mask;
+                printf("detected a 1, using mask %d\n", mask);
+            }
+
+            mask>>=1;
+            if (mask==0) {
+                mask = 128;
+                fputc(buffer, f);
+                buffer = 0;
+            }
+        }
+    }
+    if (mask!=128)
+        fputc(buffer, f);
+
+    fclose(f);
 }
